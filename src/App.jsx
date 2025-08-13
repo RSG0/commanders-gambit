@@ -1,50 +1,81 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
 
 export default function App() {
-  const [count, setCount] = useState(0)
-  const [commanderImage1, setCommanderImage1] = useState();
+  const [cards, setCards] = useState([]); // all fetched cards
+  const [commanders, setCommanders] = useState([]); // 3 displayed cards
+  const placeholder = "https://via.placeholder.com/200x280?text=No+Image";
 
-  async function GetMagicCommander()
+  // Fetch cards once when the component mounts
+  useEffect(() => {
+    async function fetchCommanders(pages = 3) {
+      let allCommanders = [];
 
-  {
-    try{
-      const response = await fetch("https://api.magicthegathering.io/v1/cards")
-      if (!response.ok)
-      {
-        throw new Error("Can not fetch resource");
+      for (let i = 1; i <= pages; i++) {
+        const res = await fetch(
+          `https://api.magicthegathering.io/v1/cards?page=${i}&pageSize=100`
+        );
+        const data = await res.json();
+
+        // Filter for Legendary Creatures
+        const legendaryCreatures = data.cards.filter(card =>
+          card.supertypes?.includes("Legendary") &&
+          card.types?.includes("Creature")
+        );
+
+        allCommanders = allCommanders.concat(legendaryCreatures);
       }
-      const data = await response.json()
-      if (data == null)
-      {
-        throw new Error("Can not translate resource to JSON");
+
+      console.log(`Fetched ${allCommanders.length} commanders`);
+      setCards(allCommanders);
+      pickRandomCommanders(allCommanders); // show 3 random immediately
+    }
+
+    fetchCommanders();
+  }, []);
+
+
+  // Picks 3 random unique cards
+  function pickRandomCommanders(sourceCards = cards) {
+    if (sourceCards.length === 0) return;
+
+    const chosen = [];
+    const usedIndexes = new Set();
+
+    while (chosen.length < 3) {
+      const randomIndex = Math.floor(Math.random() * sourceCards.length);
+      if (!usedIndexes.has(randomIndex)) {
+        usedIndexes.add(randomIndex);
+        chosen.push(sourceCards[randomIndex]);
       }
-      console.log(data.cards[0].name)
-      const commanderImage = data.cards[0].imageUrl
-      console.log("Image:", commanderImage)
-      const imgElement = document.getElementById('cmdImg1')
-      imgElement.src = commanderImage
-      imgElement.style.display = 'block'
-      imgElement.className = 'bg-transparent w-20 h-auto'
     }
-    catch(er)
-    {
-      console.log("Error:",er);
-    }
+
+    setCommanders(chosen);
   }
 
   return (
     <>
-      <p className="font-bold text-center justify-center items-center">Commander's Gambit</p>
-    <div className="flex justify-center items-center bg-amber-200">
-      <img className="bg-red-500 w-40 h-auto" src='' alt='Cmd1' id='cmdImg1' style={{display: 'none'}}></img>
-      <div className="bg-green-500 w-2 h-2 mx-1"></div>
-      <div className="bg-blue-500 w-2 h-2"></div>
-    </div>
-    <button onClick={() =>GetMagicCommander()}></button>
-    </>
-  )
-}
+      <p className="font-bold text-center text-5xl mb-5">
+        Commander's Gambit
+      </p>
 
+      <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
+        {commanders.map((card, idx) => (
+          <img
+            key={idx}
+            className="bg-transparent w-40 md:w-32 sm:w-24 h-auto"
+            src={card.imageUrl || placeholder}
+            alt={card.name || `Commander ${idx + 1}`}
+          />
+        ))}
+      </div>
+
+      <button
+        className="m-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-700"
+        onClick={() => pickRandomCommanders()}
+      >
+        Randomize
+      </button>
+    </>
+  );
+}
