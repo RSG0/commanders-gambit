@@ -8,7 +8,7 @@ export default function App() {
 
   // Fetch cards once when the component mounts
   useEffect(() => {
-    async function fetchCommanders(pages = 3) {
+    async function fetchCommanders(pages = 20) {
       let allCommanders = [];
 
       for (let i = 1; i <= pages; i++) {
@@ -20,7 +20,7 @@ export default function App() {
         // Filter for Legendary Creatures
         const legendaryCreatures = data.cards.filter(card =>
           card.supertypes?.includes("Legendary") &&
-          card.types?.includes("Creature")
+          card.types?.includes("Creature") && card.imageUrl?.includes('')
         );
 
         allCommanders = allCommanders.concat(legendaryCreatures);
@@ -63,7 +63,7 @@ export default function App() {
         {commanders.map((card, idx) => (
           <img
             key={idx}
-            className="bg-transparent w-40 md:w-32 sm:w-24 h-auto"
+            className="bg-transparent w-60 h-auto"
             src={card.imageUrl || placeholder}
             alt={card.name || `Commander ${idx + 1}`}
           />
