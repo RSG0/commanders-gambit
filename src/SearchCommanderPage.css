@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+.button{
+    width: 6rem;
+    height: 2.5rem;
+    display: flex; /*This makes justify content and align items work*/
+    justify-content: center;
+    align-items: center;
+    background-color: darkblue;
+    transition: background-color 0.5s ease;
+    text-align: center;
+    margin: 1rem;
+}
+.button:hover{
+    background-color: blueviolet;
+}

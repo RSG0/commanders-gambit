@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+.parent{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .button{
     width: 6rem;
     height: 6rem;

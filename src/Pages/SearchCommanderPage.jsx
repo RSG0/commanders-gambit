@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import "./SearchCommanderPage.css"
+
 
 export default function SearchCommanderPage() {
   const [allCommanders, setAllCommanders] = useState([]);
@@ -60,16 +62,17 @@ export default function SearchCommanderPage() {
           placeholder="Search for a commander..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-400 rounded p-2 w-1/2"
+          className="border-2 border-gray-400 rounded p-2 w-1/2"
         />
       </div>
 
       {/* Search Results */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {filteredCommanders.map((commander) => (
-          <div
+          <button
             key={commander.id}
-            className="bg-white shadow p-2 flex flex-col items-center rounded"
+            className=" p-2 flex flex-col items-center rounded bg-white !important"
+            onClick={() => console.log(commander.name)}
           >
             <img
               src={commander.imageUrl}
@@ -77,8 +80,11 @@ export default function SearchCommanderPage() {
               className="w-40 h-auto rounded"
             />
             <p className="mt-2 font-bold text-center text-black">{commander.name}</p>
-          </div>
+          </button>
         ))}
+      </div>
+      <div className="parent">
+        <button className="button">Add</button>
       </div>
     </div>
   );
