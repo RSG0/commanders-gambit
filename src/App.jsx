@@ -5,10 +5,9 @@ export default function App() {
   const [cards, setCards] = useState([]); // all fetched cards
   const [commanders, setCommanders] = useState([]); // 3 displayed cards
   const placeholder = "https://via.placeholder.com/200x280?text=No+Image";
-
   // Fetch cards once when the component mounts
   useEffect(() => {
-    async function fetchCommanders(pages = 20) {
+    async function fetchCommanders(pages = 50) { //Need to find solve to long load times
       let allCommanders = [];
 
       for (let i = 1; i <= pages; i++) {
@@ -20,7 +19,8 @@ export default function App() {
         // Filter for Legendary Creatures
         const legendaryCreatures = data.cards.filter(card =>
           card.supertypes?.includes("Legendary") &&
-          card.types?.includes("Creature") && card.imageUrl?.includes('')
+          card.types?.includes("Creature") && 
+          card.imageUrl?.includes('') //Removes Empty Images
         );
 
         allCommanders = allCommanders.concat(legendaryCreatures);

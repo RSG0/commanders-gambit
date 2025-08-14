@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+.button{
+    width: 6rem;
+    height: 6rem;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.5s ease;
+}
+.button:hover{
+    background-color: rebeccapurple;
+}
