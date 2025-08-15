@@ -1,17 +1,18 @@
-@import "tailwindcss";
 
 .parent{
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.button{
-    width: 6rem;
+
+.button.button{
+    width: 6rem; /*You can also use !important*/
     height: 6rem;
     justify-content: center;
     align-items: center;
     transition: background-color 0.5s ease;
-}
+} 
+
 .button:hover{
     background-color: rebeccapurple;
 }

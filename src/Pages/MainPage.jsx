@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
-import "./MainPage.css"
+import { useNavigate } from "react-router-dom";
+import "../MainPage.css"
 
 export default function MainPage() {
         
+  const navigate = useNavigate();
+
+  const handleNavigate = () => // should navigate to search page
+  {
+    navigate("/search");
+  }
   return (
     <>
       <p className="font-bold text-center text-5xl mb-5">
@@ -11,9 +18,9 @@ export default function MainPage() {
       <p>Select how many players are in the game</p>
       <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
         {console.log("Dragon")}
-      <button className="button">2 Players</button>
-      <button className="button">3 Players</button>
-      <button className="button">4 Players</button>
+      <button onClick={handleNavigate} className="button">2 Players</button>
+      <button onClick={handleNavigate} className="button">3 Players</button>
+      <button onClick={handleNavigate} className="button">4 Players</button>
       </div>
     </>
   );

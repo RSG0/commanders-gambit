@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./SearchCommanderPage.css"
+import "../SearchCommanderPage.css"
 
 
 export default function SearchCommanderPage() {
