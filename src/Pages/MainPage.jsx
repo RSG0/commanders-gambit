@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../MainPage.css"
+import HomeButton from "../components/HomeButton";
+import Header from "../components/Header";
+import '../style/MainPage.css'
 
 export default function MainPage() {
         
@@ -12,15 +14,14 @@ export default function MainPage() {
   }
   return (
     <>
-      <p className="font-bold text-center text-5xl mb-5">
-        Commander's Gambit
-      </p>
+      <Header />
+      {/* <HomeButton /> */}
       <p>Select how many players are in the game</p>
       <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
         {console.log("Dragon")}
-      <button onClick={handleNavigate} className="button">2 Players</button>
-      <button onClick={handleNavigate} className="button">3 Players</button>
-      <button onClick={handleNavigate} className="button">4 Players</button>
+      <button onClick={handleNavigate} className="main-page-button">2 Players</button>
+      <button onClick={handleNavigate} className="main-page-button">3 Players</button>
+      <button onClick={handleNavigate} className="main-page-button">4 Players</button>
       </div>
     </>
   );

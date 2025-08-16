@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
-import "../SearchCommanderPage.css"
+import { useNavigate } from "react-router-dom";
+import '../style/SearchCommanderPage.css'
+import Header from "../components/Header";
 
 
-export default function SearchCommanderPage() {
+export default function SearchCommanderPage() 
+{
+
   const [allCommanders, setAllCommanders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleNavigate = () => // should navigate to search page
+  {
+    navigate("/randomize");
+  }
 
   // Fetch Legendary Creatures
     useEffect(() => {
@@ -53,8 +64,7 @@ export default function SearchCommanderPage() {
 
   return (
     <div className="p-4">
-      <p className="font-bold text-center text-5xl mb-5">Commander's Gambit</p>
-
+      <Header/>
       {/* Search Bar */}
       <div className="flex justify-center mb-4">
         <input
@@ -84,7 +94,7 @@ export default function SearchCommanderPage() {
         ))}
       </div>
       <div className="parent">
-        <button className="button">Add</button>
+        <button onClick={handleNavigate} className="button">Add</button>
       </div>
     </div>
   );

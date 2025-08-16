@@ -5,14 +5,15 @@
     align-items: center;
 }
 
-.button.button{
+.main-page-button{
     width: 6rem; /*You can also use !important*/
     height: 6rem;
     justify-content: center;
+    background-color: blueviolet;
     align-items: center;
     transition: background-color 0.5s ease;
 } 
 
-.button:hover{
+.main-page-button:hover{
     background-color: rebeccapurple;
 }

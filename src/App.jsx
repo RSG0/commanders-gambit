@@ -1,10 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {Route, BrowserRouter, Routes} from "react-router-dom" 
-import './App.css'
-import RandomizeCommandersPage from '../src/Pages/RandomizeCommandersPage.jsx'
-import MainPage from "../src/Pages/MainPage.jsx"
-import SearchCommanderPage from '../src/Pages/SearchCommanderPage.jsx'
+import './style/App.css'
+import MainPage from './Pages/MainPage.jsx'
+import SearchCommanderPage from './Pages/SearchCommanderPage.jsx'
+import RandomizeCommandersPage from './Pages/RandomizeCommandersPage.jsx'
+import ErrorPage from './Pages/ErrorPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -12,6 +13,7 @@ createRoot(document.getElementById('root')).render(
     <Routes>
       <Route index element={<MainPage/>} />
       <Route path="/home" element={<MainPage />} />
+      <Route path="*" element={<ErrorPage />} />
       <Route path="/randomize" element={<RandomizeCommandersPage />} />
       <Route path="/search" element={<SearchCommanderPage />} />
     </Routes>  

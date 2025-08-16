@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import "../RandomizeCommanderPage.css";
+import '../style/RandomizeCommanderPage.css'
+import Header from "../components/Header";
 
 export default function App() {
   const [cards, setCards] = useState([]); // all fetched cards
@@ -55,9 +56,7 @@ export default function App() {
 
   return (
     <>
-      <p className="font-bold text-center text-5xl mb-5">
-        Commander's Gambit
-      </p>
+      <Header/>
 
       <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
         {commanders.map((card, idx) => (
