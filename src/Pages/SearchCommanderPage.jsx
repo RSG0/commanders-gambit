@@ -4,6 +4,7 @@ import '../style/SearchCommanderPage.css'
 import Header from "../components/Header";
 import AddButton from "../components/AddButton";
 import BackButton from "../components/BackButton";
+import NextButton from "../components/NextButton";
 
 
 export default function SearchCommanderPage() 
@@ -11,28 +12,32 @@ export default function SearchCommanderPage()
 
   const [allCommanders, setAllCommanders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [playerCount, setPlayerCount] = useState(1); // track which player's turn it is to choose
+  const [playerChosenCommanders, setPlayerChosenCommanders] = useState({});
+
 
   const navigate = useNavigate();
   const location = useLocation();
-  const {mainPageData} = (location.state || {}); // get number of players passed from main page
+  const {mainPageData} = (location.state || 2); // get number of players passed from main page. Default is 2
 
   const numOfPlayers = mainPageData
 
-  let playerCount = 0
 
-  const [selected, setSelected] = useState(false);
+  const [selected, setSelected] = useState([]);
 
-  const handleClick = (commander) => {
-    handlePlayerChoice(playerCount, commander);
-    setSelected(true);
+  const handleClick = (count, commander) => {
+    setSelected( [...selected, commander.name]);
+    handlePlayerChoice(count, commander);
   };
 
+  useEffect(() => 
+    {
+      console.log(`Player ${playerCount} turn to choose commanders`);
+      console.log(playerChosenCommanders)
+    },  [playerCount])
 
-  const playerChosenCommanders =
-  {
-    playerNum: 0,
-    commanders: [],
-  }
+
+
   
   useEffect(() => 
   {
@@ -48,8 +53,7 @@ export default function SearchCommanderPage()
   {
     if (playerCount < numOfPlayers)
     {
-      playerCount++;
-
+      setPlayerCount( (prev) => prev + 1 ); // increment to next player
     }
     else
     {
@@ -58,27 +62,18 @@ export default function SearchCommanderPage()
     }
   }
 
-  const handlePlayerChoice = (playerNum, commander) =>
-  {
-    const alreadyChosen = playerChosenCommanders.commanders.some(
-      // (c) => c.commander.name === commander
-      (c) => 
-      {
-        console.log("Commander Name:", commander.name);
-        if (c.commander.name === commander.name) return true; 
-        else return false;
-      }
-    );
 
-    if (alreadyChosen) {
-      console.log("Already Chosen:", alreadyChosen); // true
-      console.log("Player already chose this commander");
-      return; // stop early
-    }
-      const newCommander = {playerNum, commander};
-    playerChosenCommanders.commanders.push(newCommander);
-    // console.log("Player Chosen Commander:", playerChosenCommanders.commanders);
-  }
+  
+  const handlePlayerChoice = (playerNum, commander) => {
+    setPlayerChosenCommanders((prev) => {
+      const currentPlayerCommanders = prev[playerNum] || [];
+      return {
+        ...prev,
+        [playerNum]: [...currentPlayerCommanders, commander],
+      };
+    });
+  };
+
 
   useEffect(() => {
     console.log("Received Num of Players:", mainPageData);
@@ -156,8 +151,9 @@ export default function SearchCommanderPage()
         {filteredCommanders.map((commander) => (
           <button
             key={commander.id}
-            className="p-2 flex flex-col items-center rounded bg-white hover:bg-gray-200 focus:bg-gray-200 transition-colors duration-500 ease-in"
-            onClick={() => {handlePlayerChoice(playerCount, commander)}} // Pass player number and selected commander
+            disabled={selected.includes(commander.name)} // Disable button if already selected
+            className="p-2 flex flex-col items-center rounded bg-white hover:bg-blue-300 focus:bg-blue-300 disabled:bg-blue-200 transition-colors duration-500 ease-in"
+            onClick={() => handleClick(playerCount, commander)} // Pass player number and selected commander
           >
             <img
               src={commander.imageUrl}
@@ -169,8 +165,7 @@ export default function SearchCommanderPage()
         ))}
       </div>
       <div className="parent">
-        <AddButton />
-        <button onClick={() => handleNextPlayer()} className="button">Next</button>
+        <NextButton handleNext={() =>handleNextPlayer()} />
       </div>
     </div>
   );
