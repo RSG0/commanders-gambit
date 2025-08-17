@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import '../style/RandomizeCommanderPage.css'
 import Header from "../components/Header";
+import AddButton from "../components/AddButton";
+import BackButton from "../components/BackButton";
 
 export default function App() {
   const [cards, setCards] = useState([]); // all fetched cards
@@ -57,6 +59,7 @@ export default function App() {
   return (
     <>
       <Header/>
+      <BackButton back={"/search"} />
 
       <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
         {commanders.map((card, idx) => (
