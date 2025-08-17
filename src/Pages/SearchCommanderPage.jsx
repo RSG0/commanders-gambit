@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../style/SearchCommanderPage.css'
 import Header from "../components/Header";
+import AddButton from "../components/AddButton";
+import BackButton from "../components/BackButton";
 
 
 export default function SearchCommanderPage() 
@@ -66,13 +68,15 @@ export default function SearchCommanderPage()
     <div className="p-4">
       <Header/>
       {/* Search Bar */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center items-center mb-4">
+        <BackButton />
+
         <input
           type="text"
           placeholder="Search for a commander..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border-2 border-gray-400 rounded p-2 w-1/2"
+          className="border-2 border-gray-400 rounded p-3 w-1/2 text-sm"
         />
       </div>
 
@@ -94,6 +98,7 @@ export default function SearchCommanderPage()
         ))}
       </div>
       <div className="parent">
+        <AddButton />
         <button onClick={handleNavigate} className="button">Add</button>
       </div>
     </div>
