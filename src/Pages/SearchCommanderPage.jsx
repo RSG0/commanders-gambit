@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import '../style/SearchCommanderPage.css'
 import Header from "../components/Header";
 import AddButton from "../components/AddButton";
@@ -13,15 +13,85 @@ export default function SearchCommanderPage()
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const {mainPageData} = (location.state || {}); // get number of players passed from main page
+
+  const numOfPlayers = mainPageData
+
+  let playerCount = 0
+
+  const [selected, setSelected] = useState(false);
+
+  const handleClick = (commander) => {
+    handlePlayerChoice(playerCount, commander);
+    setSelected(true);
+  };
+
+
+  const playerChosenCommanders =
+  {
+    playerNum: 0,
+    commanders: [],
+  }
+  
+  useEffect(() => 
+  {
+    console.log("Player Chosen Commanders Updated:", playerChosenCommanders);
+  }, [playerChosenCommanders.commanders]);
+
 
   const handleNavigate = () => // should navigate to search page
   {
     navigate("/randomize");
   }
+  const handleNextPlayer = () =>
+  {
+    if (playerCount < numOfPlayers)
+    {
+      playerCount++;
+
+    }
+    else
+    {
+      console.log("All players have chosen their commanders");
+      handleNavigate(); // navigate to randomize page
+    }
+  }
+
+  const handlePlayerChoice = (playerNum, commander) =>
+  {
+    const alreadyChosen = playerChosenCommanders.commanders.some(
+      // (c) => c.commander.name === commander
+      (c) => 
+      {
+        console.log("Commander Name:", commander.name);
+        if (c.commander.name === commander.name) return true; 
+        else return false;
+      }
+    );
+
+    if (alreadyChosen) {
+      console.log("Already Chosen:", alreadyChosen); // true
+      console.log("Player already chose this commander");
+      return; // stop early
+    }
+      const newCommander = {playerNum, commander};
+    playerChosenCommanders.commanders.push(newCommander);
+    // console.log("Player Chosen Commander:", playerChosenCommanders.commanders);
+  }
+
+  useEffect(() => {
+    console.log("Received Num of Players:", mainPageData);
+    if  (mainPageData == 1)
+    {
+      
+    }
+
+  }, [mainPageData]);
 
   // Fetch Legendary Creatures
     useEffect(() => {
-    async function fetchCommanders(pages = 3) {
+    async function fetchCommanders(pages = 2) {
         let commanders = [];
         const seenNames = new Set(); // track commander names already added
 
@@ -68,8 +138,9 @@ export default function SearchCommanderPage()
     <div className="p-4">
       <Header/>
       {/* Search Bar */}
+      <p>Player {playerCount} - Search for your commander(s):</p>
       <div className="flex justify-center items-center mb-4">
-        <BackButton />
+        <BackButton back={"/home"} />
 
         <input
           type="text"
@@ -85,8 +156,8 @@ export default function SearchCommanderPage()
         {filteredCommanders.map((commander) => (
           <button
             key={commander.id}
-            className=" p-2 flex flex-col items-center rounded bg-white !important"
-            onClick={() => console.log(commander.name)}
+            className="p-2 flex flex-col items-center rounded bg-white hover:bg-gray-200 focus:bg-gray-200 transition-colors duration-500 ease-in"
+            onClick={() => {handlePlayerChoice(playerCount, commander)}} // Pass player number and selected commander
           >
             <img
               src={commander.imageUrl}
@@ -99,7 +170,7 @@ export default function SearchCommanderPage()
       </div>
       <div className="parent">
         <AddButton />
-        <button onClick={handleNavigate} className="button">Add</button>
+        <button onClick={() => handleNextPlayer()} className="button">Next</button>
       </div>
     </div>
   );
