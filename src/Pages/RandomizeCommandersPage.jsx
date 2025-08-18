@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import AddButton from "../components/AddButton";
 import BackButton from "../components/BackButton";
 import { useLocation } from "react-router-dom";
+import HomeButton from "../components/HomeButton";
 
 export default function App() {
   const [cards, setCards] = useState([]); // all fetched cards
@@ -35,7 +36,10 @@ export default function App() {
   return (
     <>
       <Header/>
-      <BackButton back={"/search"} />
+      <div className="display flex justify-center text-center">
+        <BackButton back={"/search"} />
+        <HomeButton />
+      </div>
 
       <div className="flex flex-wrap justify-center items-center bg-blue-400 p-5 gap-2">
         {commanders.map((card, idx) => (

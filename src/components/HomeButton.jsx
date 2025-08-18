@@ -1,11 +1,20 @@
 import { FaHome } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function HomeButton()
 {
+    const navigate = useNavigate();
+
+  const handleNavigate = () => // should navigate to search page
+  {
+    navigate("/home");
+  }
+
     return(
-<button className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md">
-            <FaHome className="text-4xl gap-4" title="Home" />
-            <p className="font-black">Home Button</p>
+    <button className="button"
+    onClick={() => handleNavigate()}>
+            <FaHome className="text-2xl" title="Home" />
+            <p className="font-black ml-1.5">Home Button</p>
         </button>)
         
 }       
