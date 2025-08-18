@@ -3,13 +3,22 @@ import '../style/RandomizeCommanderPage.css'
 import Header from "../components/Header";
 import AddButton from "../components/AddButton";
 import BackButton from "../components/BackButton";
+import { useLocation } from "react-router-dom";
 
 export default function App() {
   const [cards, setCards] = useState([]); // all fetched cards
   const [commanders, setCommanders] = useState([]); // 3 displayed cards
   const placeholder = "https://via.placeholder.com/200x280?text=No+Image";
+
+  const location = useLocation();
+  const {searchPageData} = (location.state || -1); // get commanders from previous page
+
+  const numOfPlayers = Object.keys(searchPageData).length;
   // Fetch cards once when the component mounts
   useEffect(() => {
+    console.log("Search Page Data Received:", searchPageData);
+    console.log("Number of Players Chose Commanders:", Object.keys(searchPageData).length);
+
     async function fetchCommanders(pages = 10) { //Need to find solve to long load times
       let allCommanders = [];
 
@@ -51,6 +60,13 @@ export default function App() {
         usedIndexes.add(randomIndex);
         chosen.push(sourceCards[randomIndex]);
       }
+    }
+    function pickRandomCommanders()
+    {
+      const randomIndex = Math.floor(Math.random() * sourceCards.length);
+      Object.keys(searchPageData).forEach((key, index) => {
+        searchPageData[key] = sourceCards[(randomIndex + index) % sourceCards.length];
+      })
     }
 
     setCommanders(chosen);

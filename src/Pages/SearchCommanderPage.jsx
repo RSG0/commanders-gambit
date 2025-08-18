@@ -18,7 +18,7 @@ export default function SearchCommanderPage()
 
   const navigate = useNavigate();
   const location = useLocation();
-  const {mainPageData} = (location.state || 2); // get number of players passed from main page. Default is 2
+  const {mainPageData} = (location.state || 1); // get number of players passed from main page. Default is 2
 
   const numOfPlayers = mainPageData
 
@@ -47,12 +47,14 @@ export default function SearchCommanderPage()
 
   const handleNavigate = () => // should navigate to search page
   {
-    navigate("/randomize");
+    navigate("/randomize", {state: {searchPageData: playerChosenCommanders}} );
+
   }
   const handleNextPlayer = () =>
   {
     if (playerCount < numOfPlayers)
     {
+      setSelected([]); // reset selected for next player
       setPlayerCount( (prev) => prev + 1 ); // increment to next player
     }
     else
