@@ -86,45 +86,46 @@ export default function SearchCommanderPage()
 
   }, [mainPageData]);
 
-  // Fetch Legendary Creatures
-    useEffect(() => {
-    async function fetchCommanders(pages = 2) {
-        let commanders = [];
-        const seenNames = new Set(); // track commander names already added
+useEffect(() => {
+  async function fetchCommanders(pages = 5) {
+    const seenNames = new Set();
 
-        for (let i = 1; i <= pages; i++) {
-        const res = await fetch(
-            `https://api.magicthegathering.io/v1/cards?page=${i}&pageSize=100&type=creature&supertypes=legendary`
-        );
-        const data = await res.json();
+    // create an array of fetch promises for all pages
+    const fetches = Array.from({ length: pages }, (_, i) =>
+      fetch(
+        `https://api.magicthegathering.io/v1/cards?page=${i + 1}&pageSize=100&type=creature&supertypes=legendary`
+      ).then(res => res.json())
+    );
 
-        // Only add commanders with an image URL and unique name
-        const legendaryCreatures = data.cards.filter((card) => 
-            {
-            const isLegendaryCreature =
-            card.supertypes?.includes("Legendary") &&
-            card.types?.includes("Creature") &&
-            card.imageUrl;
+    // wait for all pages to resolve
+    const results = await Promise.all(fetches);
 
-            const isUnique = !seenNames.has(card.name); // check if name already exists
+    // flatten all the results into one big array
+    let commanders = results.flatMap((data) =>
+      data.cards.filter((card) => {
+        const isLegendaryCreature =
+          card.supertypes?.includes("Legendary") &&
+          card.types?.includes("Creature") &&
+          card.imageUrl;
 
-            if (isLegendaryCreature && isUnique) 
-            {
-                seenNames.add(card.name); // mark name as seen
-                return true;
-            }
-            return false;
-        });
+        const isUnique = !seenNames.has(card.name);
 
-        commanders = commanders.concat(legendaryCreatures);
+        if (isLegendaryCreature && isUnique) {
+          seenNames.add(card.name);
+          return true;
         }
+        return false;
+      })
+    );
+    commanders.sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
 
-        setAllCommanders(commanders);
-        console.log(`Fetched ${commanders.length} unique commanders`);
-    }
+    setAllCommanders(commanders);
+    console.log(`Fetched ${commanders.length} unique commanders`);
+  }
 
-    fetchCommanders();
-    }, []);
+  fetchCommanders();
+}, []);
+
 
   // Filter results based on search
   const filteredCommanders = allCommanders.filter((commander) =>

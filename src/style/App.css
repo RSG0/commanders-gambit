@@ -53,6 +53,12 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+.text {
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: italic;
+  /* color: #a74848; */
+}
 button:hover {
   /* border-color: #646cff; */
 }
