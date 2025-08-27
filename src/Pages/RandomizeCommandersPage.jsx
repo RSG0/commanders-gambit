@@ -29,7 +29,7 @@ export default function App() {
       {
         const randomIndex = Math.floor(Math.random() * searchPageData[i+1].length);
         setCommanders( (prev) => [...prev, searchPageData[i+1][randomIndex]] );
-        console.log(`Player ${i+1} Random Commander:`, searchPageData[i+1][randomIndex]);
+        // console.log(`Player ${i+1} Random Commander:`, searchPageData[i+1][randomIndex]);
       }
     }
 

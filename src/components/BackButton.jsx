@@ -12,7 +12,7 @@ export default function BackButton({back})
     navigate(backLocation);
   }
   useEffect(() => {
-    console.log("Back Button Path:", back);
+    // console.log("Back Button Path:", back);
   }, [back]);
 
     return(

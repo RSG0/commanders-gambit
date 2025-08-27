@@ -32,8 +32,8 @@ export default function SearchCommanderPage()
 
   useEffect(() => 
     {
-      console.log(`Player ${playerCount} turn to choose commanders`);
-      console.log(playerChosenCommanders)
+      // console.log(`Player ${playerCount} turn to choose commanders`);
+      // console.log(playerChosenCommanders)
     },  [playerCount])
 
 
@@ -41,7 +41,7 @@ export default function SearchCommanderPage()
   
   useEffect(() => 
   {
-    console.log("Player Chosen Commanders Updated:", playerChosenCommanders);
+    // console.log("Player Chosen Commanders Updated:", playerChosenCommanders);
   }, [playerChosenCommanders.commanders]);
 
 
@@ -59,7 +59,7 @@ export default function SearchCommanderPage()
     }
     else
     {
-      console.log("All players have chosen their commanders");
+      // console.log("All players have chosen their commanders");
       handleNavigate(); // navigate to randomize page
     }
   }
@@ -78,7 +78,7 @@ export default function SearchCommanderPage()
 
 
   useEffect(() => {
-    console.log("Received Num of Players:", mainPageData);
+    // console.log("Received Num of Players:", mainPageData);
     if  (mainPageData == 1)
     {
       
@@ -87,50 +87,55 @@ export default function SearchCommanderPage()
   }, [mainPageData]);
 
 useEffect(() => {
-  async function fetchCommanders(pages = 5) {
-    const seenNames = new Set();
+  async function fetchCommandersStream() {
+    const response = await fetch("http://localhost:4000/search");
 
-    // create an array of fetch promises for all pages
-    const fetches = Array.from({ length: pages }, (_, i) =>
-      fetch(
-        `https://api.magicthegathering.io/v1/cards?page=${i + 1}&pageSize=100&type=creature&supertypes=legendary`
-      ).then(res => res.json())
-    );
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
 
-    // wait for all pages to resolve
-    const results = await Promise.all(fetches);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    // flatten all the results into one big array
-    let commanders = results.flatMap((data) =>
-      data.cards.filter((card) => {
-        const isLegendaryCreature =
-          card.supertypes?.includes("Legendary") &&
-          card.types?.includes("Creature") &&
-          card.imageUrl;
+      buffer += decoder.decode(value, { stream: true });
 
-        const isUnique = !seenNames.has(card.name);
+      let lines = buffer.split("\n");
+      buffer = lines.pop(); // incomplete last line stays in buffer
 
-        if (isLegendaryCreature && isUnique) {
-          seenNames.add(card.name);
-          return true;
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        
+
+        try {
+          // console.log("All Commanders:", allCommanders)
+          const commander = JSON.parse(line);
+
+          // Add commander immediately to state
+        setAllCommanders(prev => {
+          // Only append if not already present
+          if (prev.some(c => c.name === commander.name)) return prev;
+          return [...prev, commander].sort((a, b) => a.name.localeCompare(b.name));
+        });
+        } catch (err) {
+          console.error("Failed to parse line", err);
         }
-        return false;
-      })
-    );
-    commanders.sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
-
-    setAllCommanders(commanders);
-    console.log(`Fetched ${commanders.length} unique commanders`);
+      }
+    }
   }
 
-  fetchCommanders();
+  fetchCommandersStream();
 }, []);
 
 
+
   // Filter results based on search
-  const filteredCommanders = allCommanders.filter((commander) =>
-    commander.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCommanders =  
+    allCommanders.filter((commander) =>
+      searchTerm.length >= 3 && // if the user input is over 3 characters
+      commander.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
 
   return (
     <div className="p-4">
