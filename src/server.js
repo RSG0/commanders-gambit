@@ -1,64 +1,118 @@
 import express from "express";
 import fetch from "node-fetch";
-import fs from "fs";
+import fs, { write } from "fs";
 import cors from "cors";
-import redis from "redis"
 
 const app = express();
 const PORT = 4000;
+const ONE_DAY = 1000 * // ms
+                60 *  // s
+                60   // m
 
-app.use(cors()); //Without this line the browser will block the server script since they contain different ports
+app.use(cors());
 
-app.get("/search", (req, res) => {
-  const commanders = JSON.parse(fs.readFileSync("commanders.json"));
-  res.json(commanders);
-});
+const JSON_FILENAME = "commanders.jsonl"
 
-
-app.get("/search", async (req, res) => {
-  const pages = 426 // number of pages to fetch. //TEMPORARY
-  const seenNames = new Set(); // should not allow duplicate games
-
-  // NDJSON streaming
-  res.setHeader("Content-Type", "application/x-ndjson"); // Tells the client that each data will be sent as a seperate JSON object
-
-  // const fileStream = fs.createWriteStream("commanders.jsonl", { flags: "a" });
-
-  for (let i = 1; i <= pages; i++) {
-  const response = await fetch(`https://api.magicthegathering.io/v1/cards?page=${i}&pageSize=100&type=creature&supertypes=legendary`);
-  const data = await response.json();
-    try {
-      if (i == pages)
-      {
-        console.log("Finished displaying all pages")
+// Utility to check if a file is empty
+function isFileEmpty(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.stat(filePath, (err, stats) => {
+      if (err) {
+        if (err.code === 'ENOENT') return resolve(true); // file doesn't exist
+        return reject(err);
       }
-      console.log("Pages:", i) //Duplicate Pages are expected in React Strict
+      resolve(stats.size === 0);
+    });
+  });
+}
 
-      for (const card of data.cards) {
-        const isLegendaryCreature =
-          card.supertypes?.includes("Legendary") && // is it legendary
-          card.types?.includes("Creature") && // is it a creature
-          card.imageUrl; // does it have an image
+// Fetch pages concurrently with batch size
+async function fetchCommandersFromAPI(batchSize = 10) {
+  const totalPages = 458
+  const seenNames = new Set();
+  const commanders = [];
 
-          //Code excludes planeswalkers that are commanders. Later problem
+  const writeStream = fs.createWriteStream(JSON_FILENAME, {encoding: 'utf-8', flags: 'a'})
 
-        if (isLegendaryCreature && !seenNames.has(card.name)) { // if its a legendary creature and unique
-          seenNames.add(card.name);  //Add to Set
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-          // stream to file
-          // fileStream.write(JSON.stringify(card) + "\n"); // Disabling for now
-
-          // stream to frontend
-          res.write(JSON.stringify(card) + "\n"); //converts card data to json and sends to app.jsx
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching page", i, err);
+  for (let i = 0; i < pages.length; i += batchSize) {
+    console.log("Working on Page:", i)
+    if (i == pages.length)
+    {
+      console.log("Finished Adding All pages")
     }
+    if (pages.at(i) == null) 
+    {
+      console.log("Page",  pages.at(i), "doesn't seem to exist.")
+    }
+    const batch = pages.slice(i, i + batchSize);
+    const promises = batch.map(async (page) => {
+      try {
+        const response = await fetch(`https://api.magicthegathering.io/v1/cards?page=${page}&pageSize=100&type=creature&supertypes=legendary`);
+        const data = await response.json();
+
+        if (!data.cards || !Array.isArray(data.cards)) return [];
+
+        return data.cards
+          .filter((card) => {
+            const isLegendaryCreature = card.supertypes?.includes("Legendary") &&
+              card.types?.includes("Creature") &&
+              card.imageUrl;
+
+            if (!isLegendaryCreature || seenNames.has(card.name)) return false;
+
+            seenNames.add(card.name); // mark as seen immediately
+            return true;
+          })
+          .map((card) => {
+            writeStream.write(JSON.stringify(card) + "\n");
+            return card;
+          });
+
+
+      } catch (err) {
+        console.error(`Error fetching page ${page}:`, err);
+        return [];
+      }
+    });
+
+    const results = await Promise.all(promises);
+    results.forEach(arr => commanders.push(...arr));
+  } 
+  writeStream.end()
+  return commanders;
+}
+
+// Fetch new commanders and stream to client + save to file
+async function fetchNewCommanders(res) {
+  const commanders = await fetchCommandersFromAPI(10);
+
+  // Read the file
+  const readStream = fs.createReadStream(JSON_FILENAME, { encoding: 'utf-8', flags: "w" });
+  for (const card of commanders) {
+    readStream.write(JSON.stringify(card) + "\n");
+    res.write(JSON.stringify(card) + "\n"); // stream to client
   }
 
+  // writeStream.end();
   res.end();
-  // fileStream.end();
+}
+
+app.get("/search", async (req, res) => {
+  res.setHeader("Content-Type", "application/x-ndjson");
+
+  const empty = await isFileEmpty(JSON_FILENAME);
+
+  if (empty) {
+    console.log("File empty, fetching from API...");
+    // await fetchNewCommanders(res);
+    await fetchCommandersFromAPI(10);
+  } else {
+    console.log("Serving commanders from local file...");
+    const readStream = fs.createReadStream(JSON_FILENAME, 'utf-8');
+    readStream.pipe(res);
+  }
 });
 
 app.listen(PORT, () => {
