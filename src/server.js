@@ -47,7 +47,7 @@ async function getTotalPages() {
 
 
 // Fetch pages concurrently with batch size
-async function fetchCommandersFromAPI(batchSize = 5) {
+async function fetchCommandersFromAPI(batchSize = 10) {
   // const totalPages = await getTotalPages()
   const totalPages = await getTotalPages();
   const seenNames = new Set();
@@ -85,15 +85,15 @@ async function fetchCommandersFromAPI(batchSize = 5) {
 
         return data.cards
           .filter((card) => {
-            const isLegendaryCreature = card.supertypes?.includes("Legendary") &&
-              card.types?.includes("Creature") &&
-              card.imageUrl;
+            // const isLegendaryCreature = card.supertypes?.includes("Legendary") &&
+            //   card.types?.includes("Creature") &&
+            //   card.imageUrl;
 
-            if (isLegendaryCreature && !card.imageUrl)
-            {
-              console.log(`${card.name} doesn't have an image. (Not adding to JSON)`)
-            }
-            if (!isLegendaryCreature || !card.imageUrl || seenNames.has(card.name)) return false;
+            // if (!card.imageUrl) TEMPORARY
+            // {
+            //   console.log(`${card.name} doesn't have an image. (Not adding to JSON)`)
+            // }
+            if (seenNames.has(card.name)) return false;
 
             seenNames.add(card.name); // mark as seen immediately
             return true;
@@ -119,7 +119,7 @@ async function fetchCommandersFromAPI(batchSize = 5) {
 
 // Fetch new commanders and stream to client + save to file
 async function fetchNewCommanders(res) {
-  const commanders = await fetchCommandersFromAPI(10);
+  const commanders = await fetchCommandersFromAPI(5);
 
   // Read the file
   const readStream = fs.createReadStream(JSON_FILENAME, { encoding: 'utf-8', flags: "w" });
@@ -140,13 +140,30 @@ app.get("/search", async (req, res) => {
   if (empty) {
     console.log("File empty, fetching from API...");
     // await fetchNewCommanders(res);
-    await fetchCommandersFromAPI(10);
+    await fetchCommandersFromAPI(5);
   } else {
     console.log("Serving commanders from local file...");
     const readStream = fs.createReadStream(JSON_FILENAME, 'utf-8');
     readStream.pipe(res);
   }
 });
+
+async function hasCard(cardName) {
+  const url = `https://api.magicthegathering.io/v1/cards?type=creature&supertypes=legendary&name=${encodeURIComponent(cardName)}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (!data.cards || data.cards.length === 0) {
+    console.log(`Commander "${cardName}" not found.`);
+    return false;
+  }
+
+  console.log(`Found ${data.cards.length} results for "${cardName}"`);
+  return true;
+}
+
+// hasCard("Satoru");
+
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
