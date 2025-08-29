@@ -8,7 +8,6 @@ import RandomizeCommandersPage from './Pages/RandomizeCommandersPage.jsx'
 import ErrorPage from './Pages/ErrorPage.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <BrowserRouter>
     <Routes>
       <Route index element={<MainPage/>} />
@@ -18,9 +17,4 @@ createRoot(document.getElementById('root')).render(
       <Route path="/search" element={<SearchCommanderPage />} />
     </Routes>  
     </BrowserRouter>
-  
-    {/* <MainPage /> */}
-    {/* <SearchCommanderPage/> */}
-    {/* <RandomizeCommandersPage/> */}
-  </StrictMode>,
 )
