@@ -23,12 +23,40 @@ export default function SearchCommanderPage()
   const numOfPlayers = mainPageData
 
 
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([false]);
 
-  const handleClick = (count, commander) => {
-    setSelected( [...selected, commander.name]);
-    handlePlayerChoice(count, commander);
+  const handleClick = (count, commander) => 
+  {
+    const isAlreadySelected = selected.includes(commander.name);
+    
+    if (isAlreadySelected)
+    {
+      // Deselect commander
+      setSelected(selected.filter(name => name !== commander.name));
+
+      setPlayerChosenCommanders(prev => {
+        const updatedList = (prev[count] || []).filter(c => c.name !== commander.name);
+        return {
+          ...prev,
+          [count]: updatedList,
+        };
+      });
+    }
+    else
+    {
+      setSelected( [...selected, commander.name]);
+      console.log("Selected:", commander.name)
+      console.log(selected)
+      handlePlayerChoice(count, commander);
+    }
+    
   };
+
+  const handleToggle = (itemDeselected) =>
+  {
+    const updatedItems = (selected.filter(card => itemDeselected != card))
+    setSelected(updatedItems)
+  }
 
   useEffect(() => 
     {
@@ -41,8 +69,17 @@ export default function SearchCommanderPage()
   
   useEffect(() => 
   {
-    // console.log("Player Chosen Commanders Updated:", playerChosenCommanders);
-  }, [playerChosenCommanders.commanders]);
+    if (Array.isArray(playerChosenCommanders[1]))
+    {
+     console.log("Player Chosen Commanders Updated:", playerChosenCommanders[1]);
+     console.log("Commander Length:", playerChosenCommanders[1].length)
+    }
+    else
+    {
+
+    }
+
+  }, [playerChosenCommanders[1]]);
 
 
   const handleNavigate = () => // should navigate to search page
@@ -50,8 +87,14 @@ export default function SearchCommanderPage()
     navigate("/randomize", {state: {searchPageData: playerChosenCommanders}} );
 
   }
-  const handleNextPlayer = () =>
+  const handleNextPlayer = (playerNum) =>
   {
+    if (playerChosenCommanders[playerNum] == 0 || playerChosenCommanders[playerNum] == null)
+    {
+      //Player needs to choose a commander
+      console.log("Player needs to select a button")
+      return;
+    }
     if (playerCount < numOfPlayers)
     {
       setSelected([]); // reset selected for next player
@@ -70,7 +113,7 @@ export default function SearchCommanderPage()
     setPlayerChosenCommanders((prev) => {
       const currentPlayerCommanders = prev[playerNum] || [];
       return {
-        ...prev,
+        ...prev, //spreads all existing key pairs
         [playerNum]: [...currentPlayerCommanders, commander],
       };
     });
@@ -108,8 +151,8 @@ useEffect(() => {
         
 
         try {
-          // console.log("All Commanders:", allCommanders)
           const commander = JSON.parse(line);
+          console.log("Commander:", commander.name)
 
           // Add commander immediately to state
         setAllCommanders(prev => {
@@ -138,7 +181,7 @@ useEffect(() => {
 
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex justify-center items-center flex-col">
       <Header/>
       {/* Search Bar */}
       <p>Player {playerCount} - Search for your commander(s):</p>
@@ -150,7 +193,7 @@ useEffect(() => {
           placeholder="Search for a commander..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border-2 border-gray-400 rounded p-3 w-1/2 text-sm"
+          className="border-2 border-gray-400 rounded p-3 w-3/4 text-sm"
         />
       </div>
 
@@ -160,20 +203,21 @@ useEffect(() => {
           <button
             key={commander.id}
             disabled={selected.includes(commander.name)} // Disable button if already selected
-            className="p-2 flex flex-col items-center rounded bg-white hover:bg-blue-300 focus:bg-blue-300 disabled:bg-blue-200 transition-colors duration-500 ease-in"
+            className="w-50 m-1 p-2 flex flex-col items-center rounded bg-white hover:bg-blue-300 focus:bg-blue-300 disabled:bg-blue-200 transition-transform duration-300 ease-in hover:scale-130"
             onClick={() => handleClick(playerCount, commander)} // Pass player number and selected commander
           >
             <img
+              // src={commander.image_uris.normal || commander.card_faces?.[0]?.image_uris?.normal}
               src={commander.imageUrl}
               alt={commander.name}
-              className="w-40 h-auto rounded"
+              className="w-40 h-auto"
             />
             <p className="mt-2 font-bold text-center text-black">{commander.name}</p>
           </button>
         ))}
       </div>
       <div className="parent">
-        <NextButton handleNext={() =>handleNextPlayer()} />
+        <NextButton handleNext={() =>handleNextPlayer(playerCount)} />
       </div>
     </div>
   );

@@ -29,109 +29,6 @@ function isFileEmpty(filePath) {
   });
 }
 
-async function getTotalPages() {
-  const url = `https://api.magicthegathering.io/v1/cards?page=1&pageSize=100&type=creature&supertypes=legendary`;
-  const response = await fetch(url);
-
-  const totalCount = parseInt(response.headers.get("Total-Count"), 10);
-  const pageSize   = parseInt(response.headers.get("Page-Size"), 10);
-
-  const totalPages = Math.ceil(totalCount / pageSize);
-
-  console.log("Total Count:", totalCount);
-  console.log("Page Size:", pageSize);
-  console.log("Total Pages:", totalPages);
-
-  return totalPages;
-}
-
-
-// Fetch pages concurrently with batch size
-async function fetchCommandersFromAPI(batchSize = 10) {
-  // const totalPages = await getTotalPages()
-  const totalPages = await getTotalPages();
-  const seenNames = new Set();
-  const commanders = [];
-
-  const writeStream = fs.createWriteStream(JSON_FILENAME, {encoding: 'utf-8', flags: 'a'})
-
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  for (let i = 0; i < totalPages; i += batchSize) {
-    // console.log("Working on Batch:", i + 1)
-    console.log(`Working on pages: ${i+1}-${batchSize + i}`)
-    console.log("i:", i)
-    if (i >= totalPages)
-    {
-      console.log("Finished Adding All pages")
-      break;
-    }
-    if (pages.at(i) == null) 
-    {
-      console.log("Page",  pages.at(i), "doesn't seem to exist.")
-    }
-    const batch = pages.slice(i, i + batchSize); // EX: if i =10 than (10, 10 + 10)
-    const promises = batch.map(async (page) => {
-      try {
-        const response = await fetch(`https://api.magicthegathering.io/v1/cards?page=${page}&pageSize=100&type=creature&supertypes=legendary`); // returns all legendary creatures
-        const data = await response.json();
-        // console.log("Cards:", data.cards)
-
-        if (!data.cards || !Array.isArray(data.cards))
-          {
-            console.log("error detected 82")
-            return [];
-          }
-
-        return data.cards
-          .filter((card) => {
-            // const isLegendaryCreature = card.supertypes?.includes("Legendary") &&
-            //   card.types?.includes("Creature") &&
-            //   card.imageUrl;
-
-            // if (!card.imageUrl) TEMPORARY
-            // {
-            //   console.log(`${card.name} doesn't have an image. (Not adding to JSON)`)
-            // }
-            if (seenNames.has(card.name)) return false;
-
-            seenNames.add(card.name); // mark as seen immediately
-            return true;
-          })
-          .map((card) => {
-            writeStream.write(JSON.stringify(card) + "\n");
-            return card;
-          });
-
-
-      } catch (err) {
-        console.error(`Error fetching page ${page}:`, err);
-        return [];
-      }
-    });
-
-    const results = await Promise.all(promises);
-    results.forEach(arr => commanders.push(...arr));
-  } 
-  writeStream.end()
-  return commanders;
-}
-
-// Fetch new commanders and stream to client + save to file
-async function fetchNewCommanders(res) {
-  const commanders = await fetchCommandersFromAPI(5);
-
-  // Read the file
-  const readStream = fs.createReadStream(JSON_FILENAME, { encoding: 'utf-8', flags: "w" });
-  for (const card of commanders) {
-    readStream.write(JSON.stringify(card) + "\n");
-    res.write(JSON.stringify(card) + "\n"); // stream to client
-  }
-
-  // writeStream.end();
-  res.end();
-}
-
 app.get("/search", async (req, res) => {
   res.setHeader("Content-Type", "application/x-ndjson");
 
@@ -140,7 +37,8 @@ app.get("/search", async (req, res) => {
   if (empty) {
     console.log("File empty, fetching from API...");
     // await fetchNewCommanders(res);
-    await fetchCommandersFromAPI(5);
+    // await fetchCommandersFromAPI(5);
+    await fetchCommandersScryfall()
   } else {
     console.log("Serving commanders from local file...");
     const readStream = fs.createReadStream(JSON_FILENAME, 'utf-8');
@@ -162,8 +60,54 @@ async function hasCard(cardName) {
   return true;
 }
 
-// hasCard("Satoru");
+async function fetchCommandersScryfall() {
+  const seenNames = new Set();
+  const commanders = [];
+  let url = `https://api.scryfall.com/cards/search?q=t:legendary+t:creature+f:commander`
 
+  const writeStream = fs.createWriteStream(JSON_FILENAME, {encoding: 'utf-8', flags: 'a'})
+      try {
+        while (url)
+        {
+          const response = await fetch(url); // returns all legendary creatures, (legal)
+          const data = await response.json(); //Needs to be let because we want to make it null when it runs out of pages
+          data.data.forEach((card) =>
+          {
+            const imageUrl = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal;            
+            if (imageUrl && !seenNames.has(card.name)) // prevents duplicates (maybe be obsolete)
+            {
+              commanders.push({name: card.name, imageUrl })
+              console.log("Adding Commander:", card.name)
+              const JSONInformation = {name: card.name, imageUrl}
+              seenNames.add(card.name); 
+              writeStream.write(JSON.stringify(JSONInformation) + "\n")
+            }
+            else
+            {
+              console.log(`Card ${card.name} doesn't have an image`)
+            }
+          })
+          console.log("Data has more:", data.has_more)
+          url = data.has_more ? data.next_page : null;
+        }
+          
+
+      } catch (err) {
+        console.error(`Error 194`, err);
+        return [];
+      };
+
+  writeStream.end()
+  return commanders;
+}
+
+async function getTotalPagesScryfall() // May not be nessesary
+{
+  const url = "https://api.scryfall.com/cards/search?q=t:legendary+t:creature+f:commander"
+  const response = await fetch(url)
+  const data = await response()
+  return data.data.cards.length; //Should return all the the length of cards
+}
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
