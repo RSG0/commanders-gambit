@@ -28,7 +28,7 @@ Welcome to **Commander's Gambit**, a web application that helps you **randomly s
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/rsg0/commanders-gambit.git
-cd commanders-gambit
+cd commanders-gambit/src
 ```
 
 ### 2. Install Dependencies
@@ -36,7 +36,12 @@ cd commanders-gambit
 npm install
 ```
 
-### 2. Run the development server
+### 2. Run the development server (backend)
+```bash
+node server.js
+```
+#### In another terminal run (frontend)
+
 ```bash
 npm run dev
 ```

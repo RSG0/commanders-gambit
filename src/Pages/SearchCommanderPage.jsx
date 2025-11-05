@@ -14,6 +14,7 @@ export default function SearchCommanderPage()
   const [searchTerm, setSearchTerm] = useState("");
   const [playerCount, setPlayerCount] = useState(1); // track which player's turn it is to choose
   const [playerChosenCommanders, setPlayerChosenCommanders] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
 
   const navigate = useNavigate();
@@ -119,52 +120,32 @@ export default function SearchCommanderPage()
     });
   };
 
+  useEffect(() => 
+  {
+    console.log("All commanders updated:", allCommanders.length)
+  }, [allCommanders])
 
-  useEffect(() => {
-    // console.log("Received Num of Players:", mainPageData);
-    if  (mainPageData == 1)
-    {
-      
-    }
+  async function updateCommanders()
+  {
+    setIsLoading(true)
+    setAllCommanders([]) // erase all commanders
+  
+    const response = await fetch("http://localhost:4000/update")
 
-  }, [mainPageData]);
+    await loadCommanders(response)
+    setIsLoading(false)
+  }
 
 useEffect(() => {
-  async function fetchCommandersStream() {
+  async function fetchCommandersStream() 
+  {
+    
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2 seconds before continuing
+
     const response = await fetch("http://localhost:4000/search");
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-
-      let lines = buffer.split("\n");
-      buffer = lines.pop(); // incomplete last line stays in buffer
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        
-
-        try {
-          const commander = JSON.parse(line);
-          console.log("Commander:", commander.name)
-
-          // Add commander immediately to state
-        setAllCommanders(prev => {
-          // Only append if not already present
-          if (prev.some(c => c.name === commander.name)) return prev;
-          return [...prev, commander].sort((a, b) => a.name.localeCompare(b.name));
-        });
-        } catch (err) {
-          console.error("Failed to parse line", err);
-        }
-      }
-    }
+    await loadCommanders(response);
+    setIsLoading(false)
   }
 
   fetchCommandersStream();
@@ -197,6 +178,10 @@ useEffect(() => {
         />
       </div>
 
+      {/*Is Loading */}
+      <button className="button" onClick={() => updateCommanders()}>Update</button>
+      {isLoading &&  (<p className="text-white-600 font-semibold m-4 text-lg mb-7">Loading commanders...</p>) }
+
       {/* Search Results */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {filteredCommanders.map((commander) => (
@@ -221,4 +206,39 @@ useEffect(() => {
       </div>
     </div>
   );
+
+  async function loadCommanders(response) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      let lines = buffer.split("\n");
+      buffer = lines.pop(); // incomplete last line stays in buffer
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+
+        try {
+          const commander = JSON.parse(line);
+          // console.log("Commander:", commander.name);
+
+          // Add commander immediately to state
+          setAllCommanders(prev => {
+            // Only append if not already present
+            if (prev.some(c => c.name === commander.name)) return prev;
+            return [...prev, commander].sort((a, b) => a.name.localeCompare(b.name));
+          });
+        } catch (err) {
+          console.error("Failed to parse line", err);
+        }
+      }
+    }
+  }
 }
