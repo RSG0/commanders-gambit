@@ -14,7 +14,13 @@
     transition: background-color 0.5s ease;
 } 
 
-
+.input{
+    background-color: aliceblue;
+    color: black;
+    border-radius: .5rem;
+    width: 3rem;
+    padding: .25rem;
+}
 .main-page-button:hover{
     background-color: rebeccapurple;
 }

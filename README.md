@@ -11,15 +11,17 @@ Welcome to **Commander's Gambit**, a web application that helps you **randomly s
 - 🛤️ Uses **react-router-dom** for navigation
 - 🎨 Clean icons powered by **react-icons**
 - 🧹 Code formatting with **Prettier**
+- 🧪 End-to-End Testing with **Cypress**
 
 ---
 
 ## 📦 Tech Stack
-- [React](https://react.dev/)
-- [Vite](https://vitejs.dev/)
-- [react-router-dom](https://reactrouter.com/)
-- [react-icons](https://react-icons.github.io/react-icons/)
-- [Prettier](https://prettier.io/)
+- Frontend: [React](https://react.dev/), [Vite](https://vitejs.dev/)
+- Backend: [Node.js](https://nodejs.org/)
+- Routing: [react-router-dom](https://reactrouter.com/)
+- UI: [react-icons](https://react-icons.github.io/react-icons/)
+- Formatting: [Prettier](https://prettier.io/)
+- Testing: [Cypress](https://docs.cypress.io/)
 
 ---
 
@@ -52,4 +54,15 @@ The app should now be running at:
 ```bash
 http://localhost:5173
 ```
+##
+### 🧪 Running Cypress Tests
 
+Cypress is used for end-to-end testing, validating real user behavior such as navigation, button interactions, and commander selection.
+
+Open the Cypress Test Runner
+
+### In a new terminal, run:
+```bash
+npx cypress open
+```
+Warning: To ensure no errors, the back and frontend must be running simultaneously to run Cypress testing

@@ -72,8 +72,8 @@ export default function SearchCommanderPage()
   {
     if (Array.isArray(playerChosenCommanders[1]))
     {
-     console.log("Player Chosen Commanders Updated:", playerChosenCommanders[1]);
-     console.log("Commander Length:", playerChosenCommanders[1].length)
+    //  console.log("Player Chosen Commanders Updated:", playerChosenCommanders[1]);
+    //  console.log("Commander Length:", playerChosenCommanders[1].length)
     }
     else
     {
@@ -83,7 +83,7 @@ export default function SearchCommanderPage()
   }, [playerChosenCommanders[1]]);
 
 
-  const handleNavigate = () => // should navigate to search page
+  const handleNavigate = () => // should navigate to randomize page
   {
     navigate("/randomize", {state: {searchPageData: playerChosenCommanders}} );
 
@@ -99,6 +99,7 @@ export default function SearchCommanderPage()
     if (playerCount < numOfPlayers)
     {
       setSelected([]); // reset selected for next player
+      setSearchTerm("")
       setPlayerCount( (prev) => prev + 1 ); // increment to next player
     }
     else
@@ -122,7 +123,7 @@ export default function SearchCommanderPage()
 
   useEffect(() => 
   {
-    console.log("All commanders updated:", allCommanders.length)
+    // console.log("All commanders updated:", allCommanders.length)
   }, [allCommanders])
 
   async function updateCommanders()
@@ -169,7 +170,8 @@ useEffect(() => {
       <div className="flex justify-center items-center mb-4">
         <BackButton back={"/home"} />
 
-        <input
+        <input 
+          data-test="search-commander"
           type="text"
           placeholder="Search for a commander..."
           value={searchTerm}
@@ -187,6 +189,7 @@ useEffect(() => {
         {filteredCommanders.map((commander) => (
           <button
             key={commander.id}
+            data-test={commander.name}
             disabled={selected.includes(commander.name)} // Disable button if already selected
             className="w-50 m-1 p-2 flex flex-col items-center rounded bg-white hover:bg-blue-300 focus:bg-blue-300 disabled:bg-blue-200 transition-transform duration-300 ease-in hover:scale-130"
             onClick={() => handleClick(playerCount, commander)} // Pass player number and selected commander
@@ -202,7 +205,7 @@ useEffect(() => {
         ))}
       </div>
       <div className="parent">
-        <NextButton handleNext={() =>handleNextPlayer(playerCount)} />
+        <NextButton data-test="search-page-button" handleNext={() =>handleNextPlayer(playerCount)} />
       </div>
     </div>
   );
