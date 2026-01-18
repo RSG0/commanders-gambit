@@ -1,42 +1,66 @@
 describe('Testing Functionality', () => {
-  it('Contains Introduction', () => {
-    cy.visit('/') // Get to page
-    cy.get('[data-test="introduction"]').contains("Welcome to Commander’s Gambit!") // Check if Test exists    
-  })
-  it.only("Navigate to Next Page (2 Players)", () => {
+  beforeEach(() => {
     cy.visit('/')
-    cy.get('[data-test="select-num-of-players"]').clear()
-    cy.get('[data-test="select-num-of-players"]').type("2") // 2 players
-    cy.get('[data-test="main-page-button"]').click()
-    //Player 1 Selecting Commanders
-    cy.get('[data-test="search-commander"]').type("Aang")
-    cy.get('[data-test="Aang, Airbending Master"]', {timeout: 10000}).click() // Click on Aang
-    cy.get('[data-test="Aang, the Last Airbender"]').click() // Click on Aang
-    cy.get('[data-test="search-commander"]').clear()
-    cy.get('[data-test="search-commander"]').type("Sokka")
-    cy.get('[data-test="Sokka, Swordmaster"]').click() // Click on Sokka
-    cy.get('[data-test="Sokka and Suki"]').click() // Click on Sokka
-    cy.get('[data-test="Sokka, Bold Boomeranger"]').click() // Click on Sokka
-    cy.get('[data-test="Sokka, Wolf Cove\'s Protector"]').click() // Click on Sokka
-    cy.get('[data-test="search-commander"]').clear()
-    cy.get('[data-test="search-commander"]').type("Zuko")
-    cy.get('[data-test="Zuko, Avatar Hunter"]').click() // Click on Zuko
-    cy.get('[data-test="Zuko, Conflicted"]').click() // Click on Zuko
-    cy.get('[data-test="Zuko, Exiled Prince"]').click() // Click on Zuko
-    cy.get('[data-test="Zuko, Firebending Master"]').click() // Click on Zuko
+  })
+  it('Contains Introduction', () => {
+    cy.getDataTest("introduction").contains("Welcome to Commander’s Gambit!")
+  })
+  it("Traverse Entire App", () => {
+    cy.getDataTest_Type("select-num-of-players", "2")
+    
+    cy.getDataTest_Click("main-page-button")
+    cy.intercept('GET', '**/search*').as('getCommanders') // You can use cy.intercept to return what you want.
+    cy.getDataTest_Type("search-commander", "Aang")
 
+    cy.wait('@getCommanders')
 
-    cy.get('[data-test="search-page-button"]').click()
+    cy.getDataTest_Click("Aang, Airbending Master")
+    cy.getDataTest_Click("Aang, the Last Airbender") // Click on Aang
+
+    cy.getDataTest_Type("search-commander", "Sokka")
+    cy.getDataTest_Click("Sokka, Swordmaster") // Click on Sokka
+    cy.getDataTest_Click("Sokka and Suki") // Click on Sokka
+    cy.getDataTest_Click("Sokka, Bold Boomeranger") // Click on Sokka
+    cy.getDataTest_Click("Sokka, Wolf Cove\'s Protector") // Click on Sokka
+
+    cy.getDataTest_Type("search-commander", "Katara")
+    cy.getDataTest_Click("Katara, Bending Prodigy") // Click on Katara
+    cy.getDataTest_Click("Katara, Heroic Healer") // Click on Katara
+    cy.getDataTest_Click("Katara, Seeking Revenge") // Click on Katara
+    cy.getDataTest_Click("Katara, the Fearless") // Click on Katara
+    cy.getDataTest_Click("Katara, Waterbending Master") // Click on Katara
+    cy.getDataTest_Click("Katara, Water Tribe's Hope") // Click on Katara
+
+    cy.getDataTest_Type("search-commander", "Zuko")
+    cy.getDataTest_Click("Zuko, Avatar Hunter") // Click on Zuko
+    cy.getDataTest_Click("Zuko, Conflicted") // Click on Zuko
+    cy.getDataTest_Click("Zuko, Exiled Prince") // Click on Zuko
+    cy.getDataTest_Click("Zuko, Firebending Master") // Click on Zuko
+    cy.getDataTest_Click("Zuko, Seeking Honor") // Click on Zuko
+
+    cy.getDataTest_Type("search-commander", "Bello")
+    cy.getDataTest_Click("Bello, Bard of the Brambles")
+
+    cy.getDataTest_Click("search-page-button")  // Finish selecting commanders for player 1
+
     //Player 2 Selecting Commanders
-    cy.get('[data-test="search-commander"]').type("Doctor")
-    cy.get('[data-test="The First Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Second Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Third Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Fourth Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Fifth Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Sixth Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Seventh Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="The Eighth Doctor"]').click() // Click on Doctor
-    cy.get('[data-test="search-page-button"]').click()
+    cy.getDataTest_Type("search-commander", "Doctor")
+    cy.getDataTest_Click("The First Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Second Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Third Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Fourth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Fifth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Sixth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Seventh Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Eighth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Ninth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Tenth Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Eleventh Doctor") // Click on Doctor
+    cy.getDataTest_Click("The Twelfth Doctor") // Click on Doctor
+    cy.getDataTest_Click("search-page-button")
+
+    //Check to make sure we're on the last page
+    cy.contains("Randomize")
+    cy.url('include', '\\randomize')
   })
 })

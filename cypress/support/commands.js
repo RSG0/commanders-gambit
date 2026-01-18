@@ -23,3 +23,13 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('getDataTest', (dataName) => {
+    return cy.get(`[data-test="${dataName}"]`)  // need to use quotes for dataName because some test data might have spaces
+})
+Cypress.Commands.add('getDataTest_Click', (dataName) => {
+    return cy.get(`[data-test="${dataName}"]`).should('be.visible').click()
+})
+Cypress.Commands.add('getDataTest_Type', (dataName, text) => {
+    return cy.get(`[data-test="${dataName}"]`).clear().type(text)
+})
