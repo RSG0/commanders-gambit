@@ -7,10 +7,10 @@ describe('Testing Functionality', () => {
     cy.visit('/')
     cy.get('[data-test="select-num-of-players"]').clear()
     cy.get('[data-test="select-num-of-players"]').type("2") // 2 players
-    cy.get('[data-test="main-page-button"]', {timeout: 10000}).click()
+    cy.get('[data-test="main-page-button"]').click()
     //Player 1 Selecting Commanders
     cy.get('[data-test="search-commander"]').type("Aang")
-    cy.get('[data-test="Aang, Airbending Master"]').click() // Click on Aang
+    cy.get('[data-test="Aang, Airbending Master"]', {timeout: 10000}).click() // Click on Aang
     cy.get('[data-test="Aang, the Last Airbender"]').click() // Click on Aang
     cy.get('[data-test="search-commander"]').clear()
     cy.get('[data-test="search-commander"]').type("Sokka")
@@ -18,7 +18,6 @@ describe('Testing Functionality', () => {
     cy.get('[data-test="Sokka and Suki"]').click() // Click on Sokka
     cy.get('[data-test="Sokka, Bold Boomeranger"]').click() // Click on Sokka
     cy.get('[data-test="Sokka, Wolf Cove\'s Protector"]').click() // Click on Sokka
-
     cy.get('[data-test="search-commander"]').clear()
     cy.get('[data-test="search-commander"]').type("Zuko")
     cy.get('[data-test="Zuko, Avatar Hunter"]').click() // Click on Zuko
