@@ -131,22 +131,30 @@ export default function SearchCommanderPage()
     setIsLoading(true)
     setAllCommanders([]) // erase all commanders
   
-    const response = await fetch("http://localhost:4000/update")
+    const response = await fetch("http://localhost:4000/update").then(
+      res => console.log("Success: " + res.body) ).catch(
+        res => console.log("Error: " + res))
 
     await loadCommanders(response)
     setIsLoading(false)
   }
 
 useEffect(() => {
-  async function fetchCommandersStream() 
-  {
-    
+  async function fetchCommandersStream() {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2 seconds before continuing
+    try {
+      const response = await fetch("http://localhost:4000/search");
+      
+      if (response) console.log("Network Response is ok")
+      if (!response.ok) throw new Error("Network response was not ok");
 
-    const response = await fetch("http://localhost:4000/search");
-    await loadCommanders(response);
-    setIsLoading(false)
+      // Pass the ACTUAL response object to your loader
+      await loadCommanders(response); 
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   fetchCommandersStream();

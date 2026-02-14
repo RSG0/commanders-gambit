@@ -47,6 +47,7 @@ app.get("/update", async (req, res) => // will update the commanders
 app.get("/search", async (req, res) => 
 {
   res.setHeader("Content-Type", "application/x-ndjson");
+  res.setHeader("Transfer-Encoding", "chunked");
 
   const empty = await isFileEmpty(JSON_FILENAME);
 
@@ -108,6 +109,7 @@ async function fetchCommandersScryfall(res) {
   return commanders;
 }
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  // console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`0.0.0.0:${PORT}`)
 });

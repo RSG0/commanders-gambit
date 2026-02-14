@@ -11,6 +11,7 @@ Welcome to **Commander's Gambit**, a web application that helps you **randomly s
 - 🛤️ Uses **react-router-dom** for navigation
 - 🎨 Clean icons powered by **react-icons**
 - 🧹 Code formatting with **Prettier**
+- 🐳 **Containerized with Docker** – Consistent environment for easy setup and deployment
 - 🧪 End-to-End Testing with **Cypress**
 
 ---
@@ -21,6 +22,7 @@ Welcome to **Commander's Gambit**, a web application that helps you **randomly s
 - Routing: [react-router-dom](https://reactrouter.com/)
 - UI: [react-icons](https://react-icons.github.io/react-icons/)
 - Formatting: [Prettier](https://prettier.io/)
+- Container: [Docker](https://docs.docker.com)
 - Testing: [Cypress](https://docs.cypress.io/)
 
 ---
@@ -30,39 +32,16 @@ Welcome to **Commander's Gambit**, a web application that helps you **randomly s
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/rsg0/commanders-gambit.git
-cd commanders-gambit/src
+cd commanders-gambit
 ```
 
-### 2. Install Dependencies
+### 2. Open Docker Container
 ```bash
-npm install
+docker-compose up
 ```
-
-### 2. Run the development server (backend)
-```bash
-node server.js
-```
-#### In another terminal run (frontend)
-
-```bash
-npm run dev
-```
-
----
 
 The app should now be running at:
 ```bash
 http://localhost:5173
 ```
-##
-### 🧪 Running Cypress Tests
 
-Cypress is used for end-to-end testing, validating real user behavior such as navigation, button interactions, and commander selection.
-
-Open the Cypress Test Runner
-
-### In a new terminal, run:
-```bash
-npx cypress open
-```
-Warning: To ensure no errors, the back and frontend must be running simultaneously to run Cypress testing

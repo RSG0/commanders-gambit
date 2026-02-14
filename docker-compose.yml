@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "4000:4000"
+    command: node src/server.js
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  frontend:
+    build: .
+    ports:
+      - "5173:5173"
+    # The --host flag is the "magic sauce" for Vite in Docker
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - .:/app
+      - /app/node_modules
